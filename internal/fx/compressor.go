@@ -32,9 +32,9 @@ func (c Compressor) Process() string {
 	err := cmd.
 		InputPath(c.inputFile).
 		// https://ffmpeg.org/ffmpeg-filters.html#acompressor
-		OutputOptions("-af", "acompressor=threshold=-21dB:ratio=9:attack=200:release=1000").
-		OutputPath(c.outputFile).
-		Overwrite(true).
+		OutputOptions("-af", "acompressor=threshold=-21dB:ratio=9:attack=200:release=1000", "-b:a 320k", "-y", c.outputFile).
+		// OutputPath(c.outputFile).
+		// Overwrite(true).
 		Run()
 
 	log.FileLogger{OutputFile: "ffmpeg.log"}.Println(cmd.Build().String())

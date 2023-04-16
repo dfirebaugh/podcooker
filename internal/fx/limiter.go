@@ -30,12 +30,16 @@ func (l *Limiter) Filter() string {
 
 func (l *Limiter) Process() string {
 	logrus.Trace("call to limitAudio()")
+	// https://ffmpeg.org/ffmpeg-filters.html#alimiter
 	cmd := ffmpeg.NewCommand("").
 		InputPath(l.inputFile).
-		OutputPath(l.outputFile).
-		// https://ffmpeg.org/ffmpeg-filters.html#alimiter
-		Options("-filter_complex", fmt.Sprintf("alimiter=level_in=1:level_out=1:limit=%f:attack=7:release=100:level=disabled", l.limit)).
-		Overwrite(true)
+		Options(
+			"-filter_complex",
+			fmt.Sprintf("alimiter=level_in=1:level_out=1:limit=%f:attack=7:release=100:level=disabled", l.limit),
+			// "-b:a 320k",
+			"-y",
+			l.outputFile,
+		)
 
 	log.FileLogger{OutputFile: "ffmpeg.log"}.Println(cmd.Build().String())
 

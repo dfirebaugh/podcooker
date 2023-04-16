@@ -31,9 +31,12 @@ func (n Normalizer) Process() string {
 	cmd := ffmpeg.NewCommand("").
 		InputPath(n.inputFile).
 		// https://ffmpeg.org/ffmpeg-filters.html#loudnorm
-		Options("-af", "loudnorm=I=-8:LRA=11:TP=-1.5").
-		Overwrite(true).
-		OutputPath(n.outputFile)
+		Options(
+			"-af",
+			"loudnorm=I=-8:LRA=11:TP=-1.5",
+			// "-b:a 320k",
+			"-y",
+			n.outputFile)
 
 	log.FileLogger{OutputFile: "ffmpeg.log"}.Println(cmd.Build().String())
 

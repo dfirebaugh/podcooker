@@ -42,12 +42,16 @@ func (v *VolumeProcessor) Process() string {
 
 	logrus.Infof("Adjusting volume of %s by %fdB", v.outputFile, adjustment)
 
+	var args []string
+
+	args = append(args, "-af", fmt.Sprintf("volume=%fdB", adjustment))
+	// args = append(args, "-b:a 320k")
+	args = append(args, "-y", v.outputFile)
+
 	// https://ffmpeg.org/ffmpeg-filters.html#volume
 	cmd := ffmpeg.NewCommand("").
 		InputPath(v.inputFile).
-		Options("-af", fmt.Sprintf("volume=%fdB", adjustment)).
-		Overwrite(true).
-		OutputPath(v.outputFile)
+		Options(args...)
 
 	log.FileLogger{OutputFile: "ffmpeg.log"}.Println(cmd.Build().String())
 

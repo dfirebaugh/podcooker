@@ -65,6 +65,7 @@ func (m Mixer) Process() string {
 	// https://ffmpeg.org/ffmpeg-filters.html#amix
 	args = append(args, "-filter_complex", mixFilter)
 
+	// args = append(args, "-b:a 320k")
 	args = append(args, "-y", m.outputFile)
 
 	e := exec.Command("ffmpeg", args...)

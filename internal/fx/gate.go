@@ -25,17 +25,6 @@ func NewGate(inputFile string) *Gate {
 func (g Gate) Process() string {
 	logrus.Trace("call to Gate.Process()")
 
-	// cmd := ffmpeg.NewCommand("").
-	// 	InputPath(g.inputFile).
-	// 	Options("-af highpass=f=200,lowpass=f=3000").
-	// 	OutputPath(g.outputFile).
-	// 	Overwrite(true)
-
-	// err := cmd.Run()
-
-	// args = append(args, "-y", m.outputFile, "-filter_complex", "amix=inputs=2:duration=longest")
-	// -i tmp/2-nip_8683_converted.wav -y tmp/2-nip_8683_converted_gated.wav -af highpass=f=200,lowpass=f=3000
-
 	// https://ffmpeg.org/ffmpeg-filters.html#highpass
 	// https://ffmpeg.org/ffmpeg-filters.html#lowpass
 	args := []string{"-i", g.inputFile, "-af", "highpass=f=200,lowpass=f=3000", "-y", g.outputFile}

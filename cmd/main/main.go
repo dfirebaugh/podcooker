@@ -47,7 +47,7 @@ func main() {
 		logrus.SetLevel(logrus.TraceLevel)
 	}
 
-	mixed := processTracks(inputFileFlag, "mixed"+filepath.Ext(inputFileFlag[0]))
+	mixed := processTracks(inputFileFlag, "mixed.flac")
 	mixed = processIntro(*introFileFlag, mixed)
 	mixed = processOutro(*outroFileFlag, mixed)
 	mixed = fx.NewSilenceRemover(mixed, 0.5, -50).Process()
@@ -69,17 +69,16 @@ func processTracks(inputFiles []string, outputFile string) string {
 
 	var tracks []string
 	for _, input := range inputFiles {
-		track, err := audioconv.New(input, workingDir).Copy("")
+		track, err := audioconv.New(input, workingDir).FLAC()
 		if err != nil {
 			logrus.Errorf("error converting audio file: %s ", err)
 		}
 
-		// wav = fx.NewGate(wav).Process()
-		// wav = fx.NewNormalizer(wav, 50, 0.0001).Process()
-		// wav = fx.NewNormalizer(wav).Process()
-		// wav = fx.NewVolumeProcessor(wav, -20).Process()
-		// wav = fx.NewLimiter(wav, 0.9).Process()
-		// wav = fx.NewCompressor(wav).Process()
+		track = fx.NewGate(track).Process()
+		// track = fx.NewNormalizer(track).Process()
+		track = fx.NewVolumeProcessor(track, -20).Process()
+		// track = fx.NewLimiter(track, 0.9).Process()
+		// track = fx.NewCompressor(track).Process()
 
 		tracks = append(tracks, track)
 	}
@@ -97,12 +96,13 @@ func processIntro(introFile string, showAudio string) (outputFile string) {
 
 	// Load intro
 	logrus.Info("Loading intro track...")
-	intro, err := audioconv.New(introFile, workingDir).WAV()
+	intro, err := audioconv.New(introFile, workingDir).FLAC()
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
 	intro = fx.NewAudioCutter(0, 30*time.Second, intro).Process()
+	intro = fx.NewLimiter(intro, 0.2).Process()
 	intro = fx.NewFadeProcessor(intro, 0, 25, 5).Process()
 
 	return fx.NewMixer([]string{intro, showAudio}, intro, 5*time.Second).Process()
@@ -119,7 +119,7 @@ func processOutro(outroFile string, showAudio string) (outputFile string) {
 
 	// Load intro
 	logrus.Info("Loading intro track...")
-	outro, err := audioconv.New(outroFile, workingDir).WAV()
+	outro, err := audioconv.New(outroFile, workingDir).FLAC()
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -129,6 +129,7 @@ func processOutro(outroFile string, showAudio string) (outputFile string) {
 	}
 
 	outro = fx.NewAudioCutter(0, 60*time.Second, outro).Process()
+	outro = fx.NewLimiter(outro, 0.2).Process()
 	outro = fx.NewFadeProcessor(outro, 15, 28, 15).Process()
 
 	return fx.NewMixer([]string{showAudio, outro}, outro, 5*time.Second).Process()
@@ -147,6 +148,10 @@ func processOutput(mixedFilePath string, outputFile string) string {
 	if err != nil {
 		logrus.Error(err)
 	}
+	final, err := audioconv.New(mp3, ".").Copy("_final")
+	if err != nil {
+		logrus.Error(err)
+	}
 
-	return mp3
+	return final
 }

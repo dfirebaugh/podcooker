@@ -7,24 +7,24 @@ The following table shows the current implementation status of various audio pro
 
 | Audio FX | Implemented |
 |----------------------|-------------|
-| Compressor | x |
-| Limiter | x |
-| Gate | x |
-| Normalizer | x |
+| Compressor | ✓ |
+| Limiter | ✓ |
+| Gate | ✓ |
+| Normalizer | ✓ |
 | Silence Stripper | ✓ |
 
 ## Build
 To build the project, simply run the following command:
 
 ```bash
-go build -o podcastcooker cmd/main.go
+go build -o podcooker cmd/main.go
 ```
 
 ## Usage
 To use Podcast Cooker, run the following command with the appropriate arguments:
 
 ```bash
-./podcastcooker --input file1.mp3 --input file2.mp3 --intro intro.mp3 --outro outro.mp3 --output final_output.mp3
+./podcooker --input file1.mp3 --input file2.mp3 --intro intro.mp3 --outro outro.mp3 --output final_output.mp3
 ```
 
 The options are:

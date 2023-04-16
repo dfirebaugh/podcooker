@@ -29,13 +29,16 @@ func NewSilenceRemover(inputFile string, minSilenceLen float64, silenceThreshold
 
 func (s SilenceRemover) Process() string {
 	// https://ffmpeg.org/ffmpeg-filters.html#silenceremove
-	silenceremoveFilter := fmt.Sprintf("silenceremove=stop_periods=1:start_duration=%f:stop_duration=%f:start_threshold=%f:stop_threshold=%f:detection=peak", s.minSilenceLen, s.minSilenceLen, s.silenceThreshold, s.silenceThreshold)
+	silenceremoveFilter := fmt.Sprintf("silenceremove=stop_periods=1:start_duration=%f:stop_duration=%f:start_threshold=%fdB:stop_threshold=%fdB:detection=peak", s.minSilenceLen, s.minSilenceLen, s.silenceThreshold, s.silenceThreshold)
+
+	var args []string
+	args = append(args, "-af", silenceremoveFilter)
+	// args = append(args, "-b:a 320k")
+	args = append(args, "-y", s.outputFile)
 
 	cmd := ffmpeg.NewCommand("").
 		InputPath(s.inputFile).
-		Options("-af", silenceremoveFilter).
-		Overwrite(true).
-		OutputPath(s.outputFile)
+		Options(args...)
 
 	log.FileLogger{OutputFile: "ffmpeg.log"}.Println(cmd.Build().String())
 

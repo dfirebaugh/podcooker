@@ -14,8 +14,9 @@ import (
 type FileFormat string
 
 const (
-	WAVFormat FileFormat = "wav"
-	MP3Format FileFormat = "mp3"
+	WAVFormat  FileFormat = "wav"
+	MP3Format  FileFormat = "mp3"
+	FLACFormat FileFormat = "flac"
 )
 
 type AudioConverter struct {
@@ -34,7 +35,7 @@ func (ac AudioConverter) convert(format FileFormat) (string, error) {
 	logrus.Trace("call to convert")
 	codec := ac.getCodec(format)
 
-	if format != WAVFormat && format != MP3Format {
+	if format != WAVFormat && format != MP3Format && format != FLACFormat {
 		return "", fmt.Errorf("invalid format %s", format)
 	}
 
@@ -52,7 +53,8 @@ func (ac AudioConverter) convert(format FileFormat) (string, error) {
 		AudioCodec(codec).
 		AudioChannels(1).
 		AudioRate(44100).
-		// AudioBitrate(320000).
+		Options("-b:a", "320k").
+		// Bitrate(320000).
 		OutputFormat(string(format)).
 		Overwrite(true).
 		Run()
@@ -71,6 +73,9 @@ func (ac AudioConverter) getCodec(format FileFormat) string {
 	if format == MP3Format {
 		return "libmp3lame"
 	}
+	if format == FLACFormat {
+		return "flac"
+	}
 
 	logrus.Error("invalid format")
 	return ""
@@ -84,6 +89,11 @@ func (ac AudioConverter) WAV() (string, error) {
 func (ac AudioConverter) MP3() (string, error) {
 	logrus.Trace("call to convertToMp3")
 	return ac.convert(MP3Format)
+}
+
+func (ac AudioConverter) FLAC() (string, error) {
+	logrus.Trace("call to convertToFlac")
+	return ac.convert(FLACFormat)
 }
 
 func (ac AudioConverter) Copy(append string) (string, error) {
