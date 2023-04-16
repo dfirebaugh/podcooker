@@ -47,7 +47,8 @@ func main() {
 		logrus.SetLevel(logrus.TraceLevel)
 	}
 
-	mixed := processTracks(inputFileFlag, "mixed.flac")
+	mixed := "mixed.flac"
+	mixed = processTracks(inputFileFlag, mixed)
 	mixed = processIntro(*introFileFlag, mixed)
 	mixed = processOutro(*outroFileFlag, mixed)
 	mixed = fx.NewSilenceRemover(mixed, 0.5, -50).Process()
@@ -76,7 +77,7 @@ func processTracks(inputFiles []string, outputFile string) string {
 
 		track = fx.NewGate(track).Process()
 		// track = fx.NewNormalizer(track).Process()
-		track = fx.NewVolumeProcessor(track, -20).Process()
+		track = fx.NewVolumeProcessor(track, -22).Process()
 		// track = fx.NewLimiter(track, 0.9).Process()
 		// track = fx.NewCompressor(track).Process()
 
@@ -102,7 +103,8 @@ func processIntro(introFile string, showAudio string) (outputFile string) {
 	}
 
 	intro = fx.NewAudioCutter(0, 30*time.Second, intro).Process()
-	intro = fx.NewLimiter(intro, 0.2).Process()
+	// intro = fx.NewLimiter(intro, 0.2).Process()
+	intro = fx.NewVolumeProcessor(intro, -40).Process()
 	intro = fx.NewFadeProcessor(intro, 0, 25, 5).Process()
 
 	return fx.NewMixer([]string{intro, showAudio}, intro, 5*time.Second).Process()
@@ -129,7 +131,8 @@ func processOutro(outroFile string, showAudio string) (outputFile string) {
 	}
 
 	outro = fx.NewAudioCutter(0, 60*time.Second, outro).Process()
-	outro = fx.NewLimiter(outro, 0.2).Process()
+	// outro = fx.NewLimiter(outro, 0.2).Process()
+	outro = fx.NewVolumeProcessor(outro, -40).Process()
 	outro = fx.NewFadeProcessor(outro, 15, 28, 15).Process()
 
 	return fx.NewMixer([]string{showAudio, outro}, outro, 5*time.Second).Process()
