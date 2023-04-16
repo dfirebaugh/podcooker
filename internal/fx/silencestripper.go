@@ -12,24 +12,20 @@ import (
 )
 
 type SilenceRemover struct {
-	inputFile        string
-	outputFile       string
-	minSilenceLen    float64
-	silenceThreshold float64
+	inputFile  string
+	outputFile string
 }
 
-func NewSilenceRemover(inputFile string, minSilenceLen float64, silenceThreshold float64) *SilenceRemover {
+func NewSilenceRemover(inputFile string) *SilenceRemover {
 	return &SilenceRemover{
-		inputFile:        inputFile,
-		outputFile:       strings.TrimSuffix(inputFile, filepath.Ext(inputFile)) + "_silence_removed" + filepath.Ext(inputFile),
-		minSilenceLen:    minSilenceLen,
-		silenceThreshold: silenceThreshold,
+		inputFile:  inputFile,
+		outputFile: strings.TrimSuffix(inputFile, filepath.Ext(inputFile)) + "_silence_removed" + filepath.Ext(inputFile),
 	}
 }
 
 func (s SilenceRemover) Process() string {
 	// https://ffmpeg.org/ffmpeg-filters.html#silenceremove
-	silenceremoveFilter := fmt.Sprintf("silenceremove=stop_periods=1:start_duration=%f:stop_duration=%f:start_threshold=%fdB:stop_threshold=%fdB:detection=peak", s.minSilenceLen, s.minSilenceLen, s.silenceThreshold, s.silenceThreshold)
+	silenceremoveFilter := "silenceremove=1:0:-50dB"
 
 	var args []string
 	args = append(args, "-af", silenceremoveFilter)

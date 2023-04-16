@@ -51,7 +51,7 @@ func main() {
 	mixed = processTracks(inputFileFlag, mixed)
 	mixed = processIntro(*introFileFlag, mixed)
 	mixed = processOutro(*outroFileFlag, mixed)
-	mixed = fx.NewSilenceRemover(mixed, 0.5, -50).Process()
+	mixed = fx.NewSilenceRemover(mixed).Process()
 	// mixed = fx.NewLimiter(mixed, 0.9).Process()
 	mixed = processOutput(mixed, *outputFileFlag)
 
@@ -151,10 +151,11 @@ func processOutput(mixedFilePath string, outputFile string) string {
 	if err != nil {
 		logrus.Error(err)
 	}
-	final, err := audioconv.New(mp3, ".").Copy("_final")
+
+	mp3, err = audioconv.New(mp3, workingDir).Move(outputFile)
 	if err != nil {
 		logrus.Error(err)
 	}
 
-	return final
+	return mp3
 }

@@ -53,7 +53,7 @@ func (ac AudioConverter) convert(format FileFormat) (string, error) {
 		AudioCodec(codec).
 		AudioChannels(1).
 		AudioRate(44100).
-		Options("-b:a", "320k").
+		// Options("-b:a", "320k").
 		// Bitrate(320000).
 		OutputFormat(string(format)).
 		Overwrite(true).
@@ -130,4 +130,21 @@ func (ac AudioConverter) Copy(append string) (string, error) {
 	}
 
 	return newFilePath, nil
+}
+
+func (ac AudioConverter) Move(destFilePath string) (string, error) {
+	logrus.Trace("call to Move")
+	destDir := filepath.Dir(destFilePath)
+
+	err := os.MkdirAll(destDir, os.ModePerm)
+	if err != nil {
+		return "", fmt.Errorf("error creating destination directory %s: %v", destDir, err)
+	}
+
+	err = os.Rename(ac.input, destFilePath)
+	if err != nil {
+		return "", fmt.Errorf("error moving file from %s to %s: %v", ac.input, destFilePath, err)
+	}
+
+	return destFilePath, nil
 }
